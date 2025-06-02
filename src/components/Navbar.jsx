@@ -1,12 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, UserCircle, Settings } from 'lucide-react';
+import { ShoppingCart, User, LogOut, UserCircle, Settings, Package } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -81,6 +81,13 @@ const Navbar = () => {
                       >
                         <UserCircle className="h-5 w-5 mr-2" />
                         Profile
+                      </Link>
+                      <Link
+                        to="/orders"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <Package className="h-5 w-5 mr-2" />
+                        Orders
                       </Link>
                       <Link
                         to="/settings"
