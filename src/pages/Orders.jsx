@@ -3,13 +3,15 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
-import { CreditCard, Package, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { CreditCard, Package, Clock, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -42,28 +44,43 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
-  const handlePayNow = async (order) => {
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/stripe/checkout`,
-        {
-          amount: order.totalAmount,
-          currency: "NPR",
-          orderId: order.id.toString()
-        },
-        {
-          withCredentials: true
-        }
-      );
+  const handlePayNow = (order) => {
+    setSelectedOrder(order);
+    setShowPaymentModal(true);
+  };
 
-      if (response.data.httpStatus === 'OK' && response.data.data.sessionUrl) {
-        window.location.href = response.data.data.sessionUrl;
-      } else {
-        setError('Failed to create checkout session. Please try again.');
+  const handlePaymentGateway = async (gateway) => {
+    try {
+      if (gateway === 'stripe') {
+        const response = await axios.post(
+          `${API_BASE_URL}/stripe/checkout`,
+          {
+            amount: selectedOrder.totalAmount,
+            currency: "NPR",
+            orderId: selectedOrder.id.toString()
+          },
+          {
+            withCredentials: true
+          }
+        );
+
+        if (response.data.httpStatus === 'OK' && response.data.data.sessionUrl) {
+          window.location.href = response.data.data.sessionUrl;
+        } else {
+          setError('Failed to create checkout session. Please try again.');
+        }
+      } else if (gateway === 'esewa') {
+        // Add Esewa payment integration here
+        console.log('Esewa payment selected');
+      } else if (gateway === 'khalti') {
+        // Add Khalti payment integration here
+        console.log('Khalti payment selected');
       }
     } catch (err) {
       console.error('Payment error:', err);
       setError(err.response?.data?.message || 'Failed to process payment. Please try again.');
+    } finally {
+      setShowPaymentModal(false);
     }
   };
 
@@ -83,6 +100,66 @@ const Orders = () => {
     if (!imageUrl) return '';
     const cleanUrl = imageUrl.startsWith('uploads/') ? imageUrl.substring(8) : imageUrl;
     return `${API_BASE_URL.replace('/api/v1', '')}/${cleanUrl}`;
+  };
+
+  const PaymentModal = () => {
+    if (!showPaymentModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Payment Method</h3>
+            <button
+              onClick={() => setShowPaymentModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                 onClick={() => handlePaymentGateway('stripe')}>
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Credit/Debit Card</h4>
+                  <p className="text-sm text-gray-600">Pay with Visa, Mastercard, or other cards</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t pt-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-600">Subtotal:</span>
+              <span className="font-medium">${selectedOrder?.totalAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-600">Shipping:</span>
+              <span className="font-medium">Free</span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t">
+              <span className="text-lg font-semibold">Total:</span>
+              <span className="text-lg font-semibold">${selectedOrder?.totalAmount.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <button
+              onClick={() => handlePaymentGateway('stripe')}
+              className="w-full bg-primary-600 text-white py-3 rounded-md hover:bg-primary-700 transition-colors duration-200 flex items-center justify-center space-x-2"
+            >
+              <CreditCard className="w-5 h-5" />
+              <span>Proceed to Payment</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -188,6 +265,8 @@ const Orders = () => {
           ))}
         </div>
       )}
+
+      <PaymentModal />
     </div>
   );
 };
