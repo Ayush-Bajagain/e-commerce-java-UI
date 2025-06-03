@@ -3,11 +3,13 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from '../config/axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
+import { useAuth } from '../context/AuthContext';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -75,6 +77,25 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Authentication Required',
+        text: 'Please login to add items to cart',
+        showCancelButton: true,
+        confirmButtonText: 'Login',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login');
+        }
+      });
+      return;
+    }
+
     try {
       setAddingToCart(true);
       const response = await axios.post(
@@ -95,30 +116,12 @@ const ProductDetail = () => {
         });
       }
     } catch (error) {
-      if (error.response?.status === 401) {
-        // User is not authenticated
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Authentication Required',
-          text: 'Please login to add items to cart',
-          showCancelButton: true,
-          confirmButtonText: 'Login',
-          cancelButtonText: 'Cancel',
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate('/login');
-          }
-        });
-      } else {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: error.response?.data?.message || 'Failed to add product to cart',
-          confirmButtonColor: '#3085d6'
-        });
-      }
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: error.response?.data?.message || 'Failed to add product to cart',
+        confirmButtonColor: '#3085d6'
+      });
     } finally {
       setAddingToCart(false);
     }

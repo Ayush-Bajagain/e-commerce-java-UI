@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import { CreditCard, Package, Clock, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
