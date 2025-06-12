@@ -17,6 +17,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import Orders from './pages/Orders';
+import OrderViewDetails from './pages/OrderViewDetails';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               <Route path="/payment-failed" element={<PaymentFailed />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/:orderId" element={<OrderViewDetails />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />

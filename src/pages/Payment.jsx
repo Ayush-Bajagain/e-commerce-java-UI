@@ -88,7 +88,7 @@ const Payment = () => {
           `${API_BASE_URL}/stripe/checkout`,
           {
             amount: totalAmount,
-            currency: 'NPR',
+            currency: 'USD',
             orderId: orderId
           }
         );

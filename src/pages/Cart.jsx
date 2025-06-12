@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
@@ -417,9 +418,10 @@ const Cart = () => {
                 </div>
                 <button
                   onClick={() => handleRemoveItem(item.product.id)}
-                  className="text-red-600 hover:text-red-800"
+                  className="p-2 text-gray-400 hover:text-red-600 transition-colors duration-200"
+                  title="Remove item"
                 >
-                  Remove
+                  <Trash2 className="h-5 w-5" />
                 </button>
               </div>
             ))}
@@ -459,8 +461,8 @@ const Cart = () => {
 
       {/* Address Selection Modal */}
       {showAddressModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] flex flex-col">
             <h2 className="text-2xl font-bold mb-4">Select Delivery Address</h2>
             
             {addressLoading ? (
@@ -478,43 +480,45 @@ const Cart = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {addresses.map((address) => (
-                  <div
-                    key={address.id}
-                    className={`border rounded-lg p-4 cursor-pointer transition-colors duration-200 ${
-                      selectedAddress === address.id
-                        ? 'border-primary-600 bg-primary-50'
-                        : 'border-gray-200 hover:border-primary-400'
-                    }`}
-                    onClick={() => handleAddressSelect(address.id)}
-                  >
-                    <div className="flex items-start">
-                      <input
-                        type="radio"
-                        checked={selectedAddress === address.id}
-                        onChange={() => handleAddressSelect(address.id)}
-                        className="mt-1"
-                      />
-                      <div className="ml-3">
-                        <p className="font-medium">{address.street}</p>
-                        <p className="text-gray-600">
-                          {address.city}, {address.state} {address.zipCode}
-                        </p>
-                        <p className="text-gray-600">{address.country}</p>
+              <>
+                <div className="flex-grow overflow-y-auto pr-2 space-y-4 mb-6">
+                  {addresses.map((address) => (
+                    <div
+                      key={address.id}
+                      className={`border rounded-lg p-4 cursor-pointer transition-colors duration-200 ${
+                        selectedAddress === address.id
+                          ? 'border-primary-600 bg-primary-50'
+                          : 'border-gray-200 hover:border-primary-400'
+                      }`}
+                      onClick={() => handleAddressSelect(address.id)}
+                    >
+                      <div className="flex items-start">
+                        <input
+                          type="radio"
+                          checked={selectedAddress === address.id}
+                          onChange={() => handleAddressSelect(address.id)}
+                          className="mt-1"
+                        />
+                        <div className="ml-3">
+                          <p className="font-medium">{address.street}</p>
+                          <p className="text-gray-600">
+                            {address.city}, {address.state} {address.zipCode}
+                          </p>
+                          <p className="text-gray-600">{address.country}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
                 
-                <div className="flex justify-between mt-6">
+                <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4 border-t">
                   <button
                     onClick={() => setShowAddressModal(false)}
                     className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200"
                   >
                     Cancel
                   </button>
-                  <div className="space-x-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <button
                       onClick={handleAddNewAddress}
                       className="px-6 py-2 border border-primary-600 text-primary-600 rounded-md hover:bg-primary-50 transition-colors duration-200"
@@ -529,7 +533,7 @@ const Cart = () => {
                     </button>
                   </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>

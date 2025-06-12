@@ -238,12 +238,32 @@ const Orders = () => {
                             alt={item.product.name}
                             className="w-12 h-12 object-cover rounded"
                           />
-                          <div>
+                          <div className="flex-grow">
                             <p className="font-medium">{item.product.name}</p>
                             <p className="text-sm text-gray-600">
                               Quantity: {item.quantity} × ${item.price.toFixed(2)}
                             </p>
                           </div>
+                          <button
+                            onClick={() => navigate(`/orders/${order.id}`)}
+                            className="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center"
+                          >
+                            <span>View Details</span>
+                            <svg
+                              className="w-4 h-4 ml-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       ))}
                     </div>
